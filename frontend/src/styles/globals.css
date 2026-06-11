@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+/* ── Root variables ─────────────────────────────────────────────────────────── */
+:root {
+  --indigo: #4F46E5;
+  --indigo-dark: #3730A3;
+  --violet: #7C3AED;
+  --emerald: #059669;
+  --amber: #D97706;
+  --rose: #E11D48;
+  --surface: #F8F9FF;
+  --card: #FFFFFF;
+  --border: #E8EAFF;
+  --text: #0F172A;
+  --muted: #64748B;
+}
+
+/* ── Base ────────────────────────────────────────────────────────────────────── */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--surface);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #C7D2FE; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #818CF8; }
+
+/* ── FullCalendar overrides ──────────────────────────────────────────────────── */
+.fc { font-family: 'Inter', sans-serif !important; }
+
+.fc .fc-toolbar-title {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  letter-spacing: -0.02em;
+}
+
+.fc .fc-button {
+  background: var(--indigo) !important;
+  border-color: var(--indigo) !important;
+  font-size: 0.72rem !important;
+  padding: 0.3rem 0.8rem !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  transition: all 0.15s !important;
+  box-shadow: none !important;
+}
+
+.fc .fc-button:hover {
+  background: var(--indigo-dark) !important;
+  border-color: var(--indigo-dark) !important;
+  transform: translateY(-1px);
+}
+
+.fc .fc-button-active,
+.fc .fc-button:focus {
+  background: var(--indigo-dark) !important;
+  border-color: var(--indigo-dark) !important;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.2) !important;
+}
+
+.fc .fc-timegrid-slot { height: 2.25rem !important; }
+
+.fc .fc-event {
+  border-radius: 7px !important;
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  padding: 2px 6px !important;
+  cursor: pointer;
+  border: none !important;
+  transition: opacity 0.15s, transform 0.15s !important;
+}
+.fc .fc-event:hover { opacity: 0.88; transform: scale(1.01); }
+
+.fc .fc-today-button { background: var(--violet) !important; border-color: var(--violet) !important; }
+
+.fc .fc-col-header-cell {
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted) !important;
+  background: #F8F9FF !important;
+  padding: 8px 0 !important;
+}
+
+.fc .fc-timegrid-axis-cushion {
+  font-size: 0.7rem !important;
+  color: var(--muted) !important;
+}
+
+.fc .fc-scrollgrid {
+  border-color: var(--border) !important;
+}
+
+.fc td, .fc th {
+  border-color: var(--border) !important;
+}
+
+.fc .fc-timegrid-now-indicator-line {
+  border-color: #E11D48 !important;
+  border-width: 2px !important;
+}
+
+.fc .fc-daygrid-day-number {
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  color: var(--muted) !important;
+}
+
+.fc .fc-day-today { background: rgba(79,70,229,0.03) !important; }
+.fc .fc-day-today .fc-daygrid-day-number { color: var(--indigo) !important; font-weight: 700 !important; }
+
+/* ── Animations ──────────────────────────────────────────────────────────────── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.4); opacity: 0.6; }
+}
+
+.animate-slide-up    { animation: slideUp 0.28s ease both; }
+.animate-fade-in     { animation: fadeIn 0.2s ease both; }
+.animate-slide-right { animation: slideInRight 0.28s ease both; }
+
+/* ── Glass card ─────────────────────────────────────────────────────────────── */
+.glass {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ── Priority dot ───────────────────────────────────────────────────────────── */
+.priority-high   { background: #FEE2E2; color: #991B1B; }
+.priority-medium { background: #FEF3C7; color: #92400E; }
+.priority-low    { background: #D1FAE5; color: #065F46; }
+
+/* ── Modal backdrop ─────────────────────────────────────────────────────────── */
+.modal-backdrop {
+  animation: fadeIn 0.18s ease both;
+}
+.modal-content {
+  animation: slideUp 0.24s ease both;
+}
