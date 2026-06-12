@@ -1,21 +1,17 @@
 """
-database.py - PostgreSQL-ready SQLite database (Track B)
-Upgraded from Track A: added analytics, study blocks, color, recurrence
+database.py - PostgreSQL version (Supabase)
 """
 
-import sqlite3
 import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from datetime import datetime, timedelta
 
-DB_PATH = os.getenv("DATABASE_PATH", "data/timetable.db")
-
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_connection():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
     return conn
-
 
 def init_database():
     conn = get_connection()
@@ -23,7 +19,7 @@ def init_database():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             title TEXT NOT NULL,
             event_type TEXT DEFAULT 'class',
             start_datetime TEXT NOT NULL,
@@ -43,7 +39,7 @@ def init_database():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS assignments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             title TEXT NOT NULL,
             subject TEXT NOT NULL,
             deadline TEXT NOT NULL,
@@ -58,7 +54,7 @@ def init_database():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS subjects (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             name TEXT NOT NULL UNIQUE,
             code TEXT DEFAULT '',
             teacher TEXT DEFAULT '',
@@ -69,7 +65,7 @@ def init_database():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS study_blocks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             subject TEXT NOT NULL,
             start_datetime TEXT NOT NULL,
             end_datetime TEXT NOT NULL,
@@ -100,8 +96,6 @@ def init_database():
     print("✅ Track B database initialized")
 
 
-# ─── Events ──────────────────────────────────────────────────────────────────
-
 def add_event(title, event_type, start_dt, end_dt, location="", description="",
               subject="", priority="medium", color="#4F46E5", recurrence=""):
     conn = get_connection()
@@ -110,10 +104,10 @@ def add_event(title, event_type, start_dt, end_dt, location="", description="",
     cursor.execute("""
         INSERT INTO events (title, event_type, start_datetime, end_datetime,
             location, description, subject, priority, color, recurrence)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
     """, (title, event_type, start_dt, end_dt, location, description, subject,
           priority, color, recurrence))
-    event_id = cursor.lastrowid
+    event_id = cursor.fetchone()["id"]
     conn.commit()
     conn.close()
     return event_id, conflicts
@@ -125,13 +119,13 @@ def get_all_events(from_date=None, to_date=None, event_type=None):
     query = "SELECT * FROM events WHERE 1=1"
     params = []
     if from_date:
-        query += " AND start_datetime >= ?"
+        query += " AND start_datetime >= %s"
         params.append(from_date)
     if to_date:
-        query += " AND start_datetime <= ?"
+        query += " AND start_datetime <= %s"
         params.append(to_date)
     if event_type:
-        query += " AND event_type = ?"
+        query += " AND event_type = %s"
         params.append(event_type)
     query += " ORDER BY start_datetime ASC"
     cursor.execute(query, params)
@@ -143,10 +137,10 @@ def get_all_events(from_date=None, to_date=None, event_type=None):
 def check_conflicts(start_dt, end_dt, exclude_id=None):
     conn = get_connection()
     cursor = conn.cursor()
-    query = "SELECT * FROM events WHERE NOT (end_datetime <= ? OR start_datetime >= ?)"
+    query = "SELECT * FROM events WHERE NOT (end_datetime <= %s OR start_datetime >= %s)"
     params = [start_dt, end_dt]
     if exclude_id:
-        query += " AND id != ?"
+        query += " AND id != %s"
         params.append(exclude_id)
     cursor.execute(query, params)
     conflicts = [dict(row) for row in cursor.fetchall()]
@@ -157,7 +151,7 @@ def check_conflicts(start_dt, end_dt, exclude_id=None):
 def delete_event(event_id):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM events WHERE id = ?", (event_id,))
+    cursor.execute("DELETE FROM events WHERE id = %s", (event_id,))
     conn.commit()
     conn.close()
 
@@ -165,9 +159,9 @@ def delete_event(event_id):
 def update_event(event_id, **kwargs):
     conn = get_connection()
     cursor = conn.cursor()
-    set_clause = ", ".join([f"{k} = ?" for k in kwargs.keys()])
+    set_clause = ", ".join([f"{k} = %s" for k in kwargs.keys()])
     values = list(kwargs.values()) + [event_id]
-    cursor.execute(f"UPDATE events SET {set_clause} WHERE id = ?", values)
+    cursor.execute(f"UPDATE events SET {set_clause} WHERE id = %s", values)
     conn.commit()
     conn.close()
 
@@ -206,16 +200,14 @@ def get_free_slots(date_str, duration_minutes=60):
     return free_slots
 
 
-# ─── Assignments ─────────────────────────────────────────────────────────────
-
 def add_assignment(title, subject, deadline, description="", priority="medium", estimated_hours=1.0):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
         INSERT INTO assignments (title, subject, deadline, description, priority, estimated_hours)
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
     """, (title, subject, deadline, description, priority, estimated_hours))
-    assignment_id = cursor.lastrowid
+    assignment_id = cursor.fetchone()["id"]
     conn.commit()
     conn.close()
     return assignment_id
@@ -227,10 +219,10 @@ def get_assignments(status=None, subject=None):
     query = "SELECT * FROM assignments WHERE 1=1"
     params = []
     if status:
-        query += " AND status = ?"
+        query += " AND status = %s"
         params.append(status)
     if subject:
-        query += " AND subject LIKE ?"
+        query += " AND subject LIKE %s"
         params.append(f"%{subject}%")
     query += " ORDER BY deadline ASC"
     cursor.execute(query, params)
@@ -242,7 +234,7 @@ def get_assignments(status=None, subject=None):
 def update_assignment_status(assignment_id, status):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE assignments SET status = ? WHERE id = ?", (status, assignment_id))
+    cursor.execute("UPDATE assignments SET status = %s WHERE id = %s", (status, assignment_id))
     conn.commit()
     conn.close()
 
@@ -250,7 +242,7 @@ def update_assignment_status(assignment_id, status):
 def delete_assignment(assignment_id):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM assignments WHERE id = ?", (assignment_id,))
+    cursor.execute("DELETE FROM assignments WHERE id = %s", (assignment_id,))
     conn.commit()
     conn.close()
 
@@ -262,7 +254,7 @@ def get_upcoming_deadlines(days=7):
     future = (datetime.now() + timedelta(days=days)).isoformat()
     cursor.execute("""
         SELECT * FROM assignments
-        WHERE deadline BETWEEN ? AND ? AND status != 'completed'
+        WHERE deadline BETWEEN %s AND %s AND status != 'completed'
         ORDER BY deadline ASC
     """, (now, future))
     deadlines = [dict(row) for row in cursor.fetchall()]
@@ -270,20 +262,19 @@ def get_upcoming_deadlines(days=7):
     return deadlines
 
 
-# ─── Subjects ────────────────────────────────────────────────────────────────
-
 def add_subject(name, code="", teacher="", credits=3, color="#4F46E5"):
     conn = get_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("""
             INSERT INTO subjects (name, code, teacher, credits, color)
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s) RETURNING id
         """, (name, code, teacher, credits, color))
+        subject_id = cursor.fetchone()["id"]
         conn.commit()
-        subject_id = cursor.lastrowid
-    except sqlite3.IntegrityError:
+    except Exception:
         subject_id = None
+        conn.rollback()
     conn.close()
     return subject_id
 
@@ -297,16 +288,14 @@ def get_subjects():
     return subjects
 
 
-# ─── Study Blocks ────────────────────────────────────────────────────────────
-
 def add_study_block(subject, start_dt, end_dt, duration_minutes, assignment_id=None):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
         INSERT INTO study_blocks (subject, start_datetime, end_datetime, duration_minutes, assignment_id)
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s) RETURNING id
     """, (subject, start_dt, end_dt, duration_minutes, assignment_id))
-    block_id = cursor.lastrowid
+    block_id = cursor.fetchone()["id"]
     conn.commit()
     conn.close()
     return block_id
@@ -318,10 +307,10 @@ def get_study_blocks(subject=None, status=None):
     query = "SELECT * FROM study_blocks WHERE 1=1"
     params = []
     if subject:
-        query += " AND subject = ?"
+        query += " AND subject = %s"
         params.append(subject)
     if status:
-        query += " AND status = ?"
+        query += " AND status = %s"
         params.append(status)
     query += " ORDER BY start_datetime ASC"
     cursor.execute(query, params)
@@ -330,49 +319,26 @@ def get_study_blocks(subject=None, status=None):
     return blocks
 
 
-# ─── Analytics ───────────────────────────────────────────────────────────────
-
 def get_analytics_data():
     conn = get_connection()
     cursor = conn.cursor()
-
-    # Events by type
     cursor.execute("SELECT event_type, COUNT(*) as count FROM events GROUP BY event_type")
     events_by_type = [dict(row) for row in cursor.fetchall()]
-
-    # Assignments by status
     cursor.execute("SELECT status, COUNT(*) as count FROM assignments GROUP BY status")
     assignments_by_status = [dict(row) for row in cursor.fetchall()]
-
-    # Assignments by subject
     cursor.execute("SELECT subject, COUNT(*) as count FROM assignments GROUP BY subject ORDER BY count DESC LIMIT 5")
     assignments_by_subject = [dict(row) for row in cursor.fetchall()]
-
-    # Weekly event count (last 4 weeks)
-    cursor.execute("""
-        SELECT strftime('%W', start_datetime) as week, COUNT(*) as count
-        FROM events WHERE start_datetime >= date('now', '-28 days')
-        GROUP BY week ORDER BY week
-    """)
-    weekly_events = [dict(row) for row in cursor.fetchall()]
-
-    # Total counts
     cursor.execute("SELECT COUNT(*) as total FROM events")
     total_events = cursor.fetchone()["total"]
-
     cursor.execute("SELECT COUNT(*) as total FROM assignments WHERE status != 'completed'")
     pending_assignments = cursor.fetchone()["total"]
-
     cursor.execute("SELECT COUNT(*) as total FROM subjects")
     total_subjects = cursor.fetchone()["total"]
-
     conn.close()
-
     return {
         "events_by_type": events_by_type,
         "assignments_by_status": assignments_by_status,
         "assignments_by_subject": assignments_by_subject,
-        "weekly_events": weekly_events,
         "summary": {
             "total_events": total_events,
             "pending_assignments": pending_assignments,
@@ -381,15 +347,15 @@ def get_analytics_data():
     }
 
 
-# ─── Google Token Storage ────────────────────────────────────────────────────
-
 def save_google_token(user_email, token_data):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT OR REPLACE INTO google_tokens (user_email, token_data, updated_at)
-        VALUES (?, ?, ?)
-    """, (user_email, token_data, datetime.now().isoformat()))
+        INSERT INTO google_tokens (user_email, token_data, updated_at)
+        VALUES (%s, %s, %s)
+        ON CONFLICT (user_email) DO UPDATE SET token_data = %s, updated_at = %s
+    """, (user_email, token_data, datetime.now().isoformat(),
+          token_data, datetime.now().isoformat()))
     conn.commit()
     conn.close()
 
@@ -397,7 +363,7 @@ def save_google_token(user_email, token_data):
 def get_google_token(user_email):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT token_data FROM google_tokens WHERE user_email = ?", (user_email,))
+    cursor.execute("SELECT token_data FROM google_tokens WHERE user_email = %s", (user_email,))
     row = cursor.fetchone()
     conn.close()
     return row["token_data"] if row else None
