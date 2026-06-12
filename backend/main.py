@@ -291,13 +291,15 @@ def get_analytics():
 
 # ─── Notifications ───────────────────────────────────────────────────────────
 @app.post("/api/notifications/send")
-def send_notification(req: NotificationRequest, background_tasks: BackgroundTasks):
+def send_notification(req: NotificationRequest):
+    results = []
     if req.type in ["deadline", "both"]:
-        background_tasks.add_task(send_deadline_reminder, req.email, req.days_ahead)
+        success, msg = send_deadline_reminder(req.email, req.days_ahead)
+        results.append({"type": "deadline", "success": success, "message": msg})
     if req.type in ["daily", "both"]:
-        background_tasks.add_task(send_daily_schedule, req.email)
-    return {"message": f"Notification queued for {req.email}"}
-
+        success, msg = send_daily_schedule(req.email)
+        results.append({"type": "daily", "success": success, "message": msg})
+    return {"message": f"Notification sent to {req.email}", "results": results}
 
 # ─── Google Calendar OAuth ───────────────────────────────────────────────────
 @app.get("/api/google/auth-url")
