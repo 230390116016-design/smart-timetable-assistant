@@ -15,7 +15,7 @@ from src.database import get_upcoming_deadlines, get_all_events, get_assignments
 EMAIL_SENDER   = os.getenv("EMAIL_SENDER", "")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
 SMTP_SERVER    = "smtp.gmail.com"
-SMTP_PORT      = 587
+SMTP_PORT      = 465
 
 # Twilio (WhatsApp)
 TWILIO_SID   = os.getenv("TWILIO_ACCOUNT_SID", "")
@@ -54,8 +54,7 @@ def send_email(to_email: str, subject: str, body_text: str, body_html: str = Non
         msg.attach(MIMEText(body_text, 'plain'))
         if body_html:
             msg.attach(MIMEText(body_html, 'html'))
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()
+        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
             server.sendmail(EMAIL_SENDER, to_email, msg.as_string())
         return True, "✅ Email sent!"
