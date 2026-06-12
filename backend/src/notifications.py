@@ -10,7 +10,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
 
-from src.database import get_upcoming_deadlines, get_all_events
+from src.database import get_upcoming_deadlines, get_all_events, get_assignments
 
 EMAIL_SENDER   = os.getenv("EMAIL_SENDER", "")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
@@ -66,12 +66,14 @@ def send_email(to_email: str, subject: str, body_text: str, body_html: str = Non
 
 
 def send_deadline_reminder(to_email: str, days_ahead: int = 2) -> tuple:
-    deadlines = get_upcoming_deadlines(days_ahead)
+    # Sare pending assignments fetch karo (overdue + upcoming sab)
+    deadlines = get_assignments(status='pending')
+
     if not deadlines:
-        return True, f"No deadlines in next {days_ahead} days."
+        return True, "No pending assignments found."
 
     rows = ""
-    plain = f"🚨 Upcoming deadlines (next {days_ahead} days):\n\n"
+    plain = "🚨 All Pending Assignments:\n\n"
     for d in deadlines:
         color = {"high": "#EF4444", "medium": "#F59E0B", "low": "#10B981"}.get(d['priority'], "#6B7280")
         rows += f"""
@@ -88,8 +90,8 @@ def send_deadline_reminder(to_email: str, days_ahead: int = 2) -> tuple:
         plain += f"• {d['title']} ({d['subject']}) – {d['deadline'][:16]} [{d['priority'].upper()}]\n"
 
     body_html = build_html_email(
-        f"You have {len(deadlines)} upcoming deadline(s)",
-        f"""<p>Here are your upcoming assignment deadlines:</p>
+        f"You have {len(deadlines)} pending assignment(s)",
+        f"""<p>Here are all your pending assignments:</p>
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
           <thead>
             <tr style="background:#4F46E5;color:white;">
@@ -104,7 +106,7 @@ def send_deadline_reminder(to_email: str, days_ahead: int = 2) -> tuple:
         <p style="margin-top:16px;color:#64748b;">Start early – jaldi shuru karo! 😊</p>"""
     )
 
-    return send_email(to_email, f"⚠️ {len(deadlines)} upcoming deadline(s) – Action required!", plain, body_html)
+    return send_email(to_email, f"⚠️ {len(deadlines)} pending assignment(s) – Action required!", plain, body_html)
 
 
 def send_daily_schedule(to_email: str) -> tuple:
@@ -171,10 +173,10 @@ def send_whatsapp(to_number: str, message: str) -> tuple:
 
 
 def send_whatsapp_deadline_reminder(to_number: str, days_ahead: int = 1) -> tuple:
-    deadlines = get_upcoming_deadlines(days_ahead)
+    deadlines = get_assignments(status='pending')
     if not deadlines:
-        return True, "No urgent deadlines."
-    msg = f"🚨 *Smart Timetable – Deadline Reminder*\n\n"
+        return True, "No pending assignments."
+    msg = "🚨 *Smart Timetable – Deadline Reminder*\n\n"
     for d in deadlines:
         p = {"high": "🔴", "medium": "🟡", "low": "🟢"}.get(d['priority'], "⚪")
         msg += f"{p} *{d['title']}*\n   📖 {d['subject']}\n   ⏰ {d['deadline'][:16]}\n\n"
