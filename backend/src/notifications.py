@@ -44,22 +44,22 @@ def build_html_email(title: str, body_html: str) -> str:
 
 
 def send_email(to_email: str, subject: str, body_text: str, body_html: str = None) -> tuple:
-    if not EMAIL_SENDER or not EMAIL_PASSWORD:
-        return False, "Email credentials not configured in .env"
     try:
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = subject
-        msg['From']    = EMAIL_SENDER
-        msg['To']      = to_email
-        msg.attach(MIMEText(body_text, 'plain'))
-        if body_html:
-            msg.attach(MIMEText(body_html, 'html'))
-        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
-            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-            server.sendmail(EMAIL_SENDER, to_email, msg.as_string())
+        import sendgrid
+        from sendgrid.helpers.mail import Mail
+        api_key = os.getenv("SENDGRID_API_KEY", "")
+        if not api_key:
+            return False, "SendGrid API key not configured"
+        sg = sendgrid.SendGridAPIClient(api_key=api_key)
+        message = Mail(
+            from_email=EMAIL_SENDER,
+            to_emails=to_email,
+            subject=subject,
+            plain_text_content=body_text,
+            html_content=body_html or body_text
+        )
+        sg.send(message)
         return True, "✅ Email sent!"
-    except smtplib.SMTPAuthenticationError:
-        return False, "❌ Gmail auth failed. Use App Password (2FA required)."
     except Exception as e:
         return False, f"❌ Email error: {str(e)}"
 
