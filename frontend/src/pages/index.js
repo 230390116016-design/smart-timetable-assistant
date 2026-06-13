@@ -517,6 +517,7 @@ function AutoScheduleModal({ onClose, subjects, onDone }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function NotificationsPanel({ onClose, deadlines }) {
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [type, setType] = useState('both');
   const [sending, setSending] = useState(false);
 
@@ -527,9 +528,13 @@ function NotificationsPanel({ onClose, deadlines }) {
     if (!email.includes('@')) { toast.error('Enter a valid email'); return; }
     setSending(true);
     try {
-      await sendNotification({ email, type, days_ahead: 2 });
-      toast.success(`📧 Notification sent to ${email}`);
-    } catch { toast.error('Notification failed — check backend email config'); }
+  await sendNotification({ email, type, days_ahead: 2 });
+  toast.success(`📧 Notification sent to ${email}`);
+  if (phone && phone.includes('+')) {
+    await sendWhatsAppNotification({ phone, type });
+    toast.success(`📱 WhatsApp sent to ${phone}`);
+  }
+} catch { toast.error('Notification failed — check backend email config'); }
     finally { setSending(false); }
   };
 
@@ -602,6 +607,13 @@ function NotificationsPanel({ onClose, deadlines }) {
             onChange={e => setEmail(e.target.value)}
             className="w-full border-2 border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-400"
           />
+          <input
+  type="tel"
+  placeholder="+91 your phone number"
+  value={phone}
+  onChange={e => setPhone(e.target.value)}
+  className="w-full border-2 border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-400"
+/>
           <div className="flex gap-2">
             {[['both','📧 Both'],['deadline','📌 Deadlines'],['daily','📅 Daily']].map(([v,l]) => (
               <button key={v} onClick={() => setType(v)}

@@ -66,6 +66,8 @@ export const autoSchedule = (data) =>
 // ─── Notifications ───────────────────────────────────────────────────────────
 export const sendNotification = (data) =>
   api.post('/api/notifications/send', data).then(r => r.data);
+export const sendWhatsAppNotification = (data) =>
+  api.post('/api/notifications/whatsapp', data).then(r => r.data);
 
 // ─── Google Calendar ─────────────────────────────────────────────────────────
 export const getGoogleAuthUrl = () =>

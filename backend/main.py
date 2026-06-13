@@ -361,3 +361,13 @@ def get_me(authorization: str = None):
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid token")
     return {"email": payload.get("sub"), "name": payload.get("name")}
+
+class WhatsAppRequest(BaseModel):
+    phone: str
+    type: str = "deadline"
+
+@app.post("/api/notifications/whatsapp")
+def send_whatsapp_notification(req: WhatsAppRequest):
+    from src.notifications import send_whatsapp_deadline_reminder
+    success, msg = send_whatsapp_deadline_reminder(req.phone)
+    return {"success": success, "message": msg}
