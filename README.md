@@ -27,6 +27,11 @@
 
 ---
 
+## 📝 Blog Post
+https://medium.com/@230390116016/how-we-built-a-smart-timetable-assistant-with-ai-fastapi-and-next-js-05e195627be6
+
+---
+
 ## 📌 Project Overview
 
 Smart Timetable Assistant is an AI-powered academic scheduling tool that helps students organize their timetable, track assignments, detect conflicts, and get intelligent scheduling suggestions — all through a conversational interface.
