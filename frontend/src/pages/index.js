@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -1259,7 +1260,14 @@ export default function Home() {
       toast.error('Backend not connected — start FastAPI on port 8000');
     } finally { setLoading(false); }
   }, []);
+const router = useRouter();
 
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    router.push('/login');
+  }
+}, []);
   useEffect(() => { loadData(); }, [loadData]);
 
   // Periodic refresh every 60s
