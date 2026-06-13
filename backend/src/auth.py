@@ -32,11 +32,11 @@ def init_users_table():
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return pwd_context.hash(password.strip())
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(plain_password.strip(), hashed_password)
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -55,6 +55,9 @@ def verify_token(token: str) -> Optional[dict]:
 
 
 def register_user(name: str, email: str, password: str) -> tuple:
+    name = name.strip()
+    email = email.strip().lower()
+    password = password.strip()
     conn = get_connection()
     cursor = conn.cursor()
     try:
@@ -77,6 +80,8 @@ def register_user(name: str, email: str, password: str) -> tuple:
 
 
 def login_user(email: str, password: str) -> tuple:
+    email = email.strip().lower()
+    password = password.strip()
     conn = get_connection()
     cursor = conn.cursor()
     try:
