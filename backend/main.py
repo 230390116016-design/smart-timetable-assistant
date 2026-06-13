@@ -16,7 +16,7 @@ from typing import Optional, List
 import os
 from datetime import datetime
 from dotenv import load_dotenv
-
+from src.auth import init_users_table, register_user, login_user, verify_token
 load_dotenv()
 
 # Local imports
@@ -60,6 +60,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     init_database()
+    init_users_table()
     print("✅ Database ready")
 
 
@@ -326,3 +327,37 @@ def google_sync(user_email: str):
 def google_import(user_email: str):
     imported = fetch_google_events(user_email)
     return {"imported": imported, "message": f"{imported} events imported from Google Calendar"}
+
+# ─── Auth ────────────────────────────────────────────────────────────────────
+class UserRegister(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+@app.post("/api/auth/register")
+def register(user: UserRegister):
+    success, token, message = register_user(user.name, user.email, user.password)
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+    return {"token": token, "message": message}
+
+@app.post("/api/auth/login")
+def login(user: UserLogin):
+    success, token, message = login_user(user.email, user.password)
+    if not success:
+        raise HTTPException(status_code=401, detail=message)
+    return {"token": token, "message": message}
+
+@app.get("/api/auth/me")
+def get_me(authorization: str = None):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="No token provided")
+    token = authorization.replace("Bearer ", "")
+    payload = verify_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return {"email": payload.get("sub"), "name": payload.get("name")}
