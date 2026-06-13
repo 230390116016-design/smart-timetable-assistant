@@ -23,7 +23,7 @@ import {
   getSubjects, createSubject,
   getAnalytics, sendChatMessage, autoSchedule,
   getFreeSlots, getGoogleAuthUrl, syncToGoogle, importFromGoogle,
-  sendNotification
+  sendNotification, sendWhatsAppNotification
 } from '../lib/api';
 
 // ── Colour helpers ────────────────────────────────────────────────────────────
