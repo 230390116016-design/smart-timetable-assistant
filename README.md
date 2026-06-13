@@ -1,6 +1,38 @@
-# 🎓 Smart Timetable Assistant – Track B
+# 🎓 Smart Timetable Assistant
+**AI-powered academic schedule manager | React/Next.js + FastAPI + Supabase**
 
-**AI-powered academic schedule manager | React/Next.js + FastAPI + LangChain**
+> Capabl Track B Project — AgentForge Team
+
+[![Live Demo](https://img.shields.io/badge/Frontend-Vercel-black?logo=vercel)](https://smart-timetable-assistant-weld.vercel.app/)
+[![Backend](https://img.shields.io/badge/Backend-Render-blue?logo=render)](https://smart-timetable-assistant.onrender.com)
+
+---
+
+## 👥 Team
+
+**Team Name:** AgentForge  
+**Author:** Heta Patel  
+**Track:** Track B — Advanced  
+**Program:** Capabl 8-Week AI Project  
+
+---
+
+## 🌟 Live URLs
+
+| Service | URL |
+|--------|-----|
+| 🖥️ Frontend (Vercel) | https://smart-timetable-assistant-weld.vercel.app/ |
+| ⚙️ Backend API (Render) | https://smart-timetable-assistant.onrender.com |
+| 📖 API Docs (Swagger) | https://smart-timetable-assistant.onrender.com/docs |
+
+---
+
+## 📌 Project Overview
+
+Smart Timetable Assistant is an AI-powered academic scheduling tool that helps students organize their timetable, track assignments, detect conflicts, and get intelligent scheduling suggestions — all through a conversational interface.
+
+**Domain:** Productivity Technology & Academic Time Management  
+**Core Skills:** Scheduling algorithms, conflict detection, rule-based AI agent, REST APIs, full-stack deployment
 
 ---
 
@@ -8,24 +40,26 @@
 
 ```
 track_b/
-├── backend/               ← FastAPI Python server
-│   ├── main.py            ← All API routes
+├── backend/                    ← FastAPI Python server
+│   ├── main.py                 ← All API routes (15+ endpoints)
 │   ├── src/
-│   │   ├── agent.py       ← LangChain AI agent (GPT-4o-mini)
-│   │   ├── database.py    ← SQLite database + analytics
-│   │   ├── notifications.py ← Email + WhatsApp alerts
-│   │   ├── google_calendar.py ← Google Calendar OAuth sync
-│   │   └── scheduler.py   ← Smart auto-scheduling engine
-│   ├── seed_data.py       ← Sample data for demo
+│   │   ├── agent.py            ← Rule-based AI scheduling agent
+│   │   ├── database.py         ← Supabase/PostgreSQL + analytics
+│   │   ├── auth.py             ← JWT authentication
+│   │   ├── notifications.py    ← Email + WhatsApp (Twilio) alerts
+│   │   ├── google_calendar.py  ← Google Calendar OAuth sync
+│   │   └── scheduler.py        ← Smart auto-scheduling engine
+│   ├── seed_data.py            ← Sample data for demo
 │   ├── requirements.txt
 │   └── .env.example
 │
-└── frontend/              ← Next.js React app
+└── frontend/                   ← Next.js React app
     ├── src/
     │   ├── pages/
-    │   │   └── index.js   ← Main app (calendar + chat + analytics)
+    │   │   ├── index.js        ← Main app (calendar + chat + analytics)
+    │   │   └── login.js        ← Login/Signup page
     │   ├── lib/
-    │   │   └── api.js     ← All API calls
+    │   │   └── api.js          ← All API calls
     │   └── styles/
     │       └── globals.css
     ├── package.json
@@ -35,221 +69,23 @@ track_b/
 
 ---
 
-## 🚀 STEP-BY-STEP SETUP GUIDE
+## ✅ Track B Features Checklist
 
-### STEP 1 — Install Required Software
-
-Install these on your computer (all free):
-
-| Software | Download Link | Why needed |
-|----------|--------------|------------|
-| **Python 3.11+** | https://python.org/downloads | Backend server |
-| **Node.js 20+** | https://nodejs.org | Frontend (Next.js) |
-| **Git** | https://git-scm.com | Version control |
-| **VS Code** | https://code.visualstudio.com | Code editor |
-
-Verify installation by opening a terminal and typing:
-```bash
-python --version    # Should say Python 3.11+
-node --version      # Should say v20+
-npm --version       # Should say 10+
-```
-
----
-
-### STEP 2 — Get Your OpenAI API Key
-
-1. Go to https://platform.openai.com/signup and create a free account
-2. Click your profile → **API Keys** → **Create new secret key**
-3. Copy the key (starts with `sk-...`)
-4. **Add $5 credit** (minimum) at https://platform.openai.com/settings/billing
-5. Keep this key safe – you'll use it in Step 4
-
----
-
-### STEP 3 — Set Up the Backend
-
-Open a terminal/command prompt:
-
-```bash
-# 1. Navigate to backend folder
-cd track_b/backend
-
-# 2. Create a Python virtual environment (keeps dependencies clean)
-python -m venv venv
-
-# 3. Activate the virtual environment
-# On Windows:
-venv\Scripts\activate
-# On Mac/Linux:
-source venv/bin/activate
-
-# 4. Install all Python packages
-pip install -r requirements.txt
-
-# You should see "Successfully installed..." messages
-```
-
----
-
-### STEP 4 — Configure Environment Variables (Backend)
-
-```bash
-# In the backend/ folder, copy the example file
-cp .env.example .env
-
-# Now open .env in VS Code and fill in your values:
-code .env
-```
-
-**Minimum required** (just for basic demo):
-```env
-OPENAI_API_KEY=sk-your-actual-key-here
-DATABASE_PATH=data/timetable.db
-```
-
-**For email notifications** (optional but good for marks):
-```
-EMAIL_SENDER=youremail@gmail.com
-EMAIL_PASSWORD=your-gmail-app-password
-```
-> How to get Gmail App Password:
-> 1. Go to myaccount.google.com → Security
-> 2. Enable 2-Step Verification
-> 3. Search "App Passwords" → Create one for "Mail"
-> 4. Copy the 16-character password
-
----
-
-### STEP 5 — Add Sample Data and Start Backend
-
-```bash
-# Still in backend/ with venv active:
-
-# Add demo data (classes, assignments, exams)
-python seed_data.py
-
-# Start the FastAPI server
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-You should see:
-```
-INFO:     Uvicorn running on http://0.0.0.0:8000
-INFO:     ✅ Database ready
-```
-
-Test it works: Open http://localhost:8000 in your browser → should show `{"status":"ok"}`
-
-View all API routes: http://localhost:8000/docs (Swagger UI — great for your viva!)
-
----
-
-### STEP 6 — Set Up the Frontend
-
-Open a **new terminal window** (keep backend running):
-
-```bash
-# Navigate to frontend folder
-cd track_b/frontend
-
-# Install Node.js packages (takes 2-3 minutes)
-npm install
-
-# Copy environment file
-cp .env.example .env.local
-# .env.local already has: NEXT_PUBLIC_API_URL=http://localhost:8000
-# No changes needed for local development
-
-# Start the frontend
-npm run dev
-```
-
-You should see:
-```
-▲ Next.js 14.2.3
-- Local: http://localhost:3000
-```
-
-Open http://localhost:3000 → Your app is running! 🎉
-
----
-
-### STEP 7 — Test the App
-
-Try these features:
-
-**Calendar:**
-- Click any date to add an event
-- See your seeded classes in the weekly view
-- Switch between Month / Week / Day views
-
-**AI Chat (click "AI Chat" button):**
-```
-"What classes do I have this week?"
-"Add a Physics exam on Friday at 10 AM"
-"Find me a free 2-hour slot tomorrow for DSA study"
-"What are my upcoming deadlines?"
-"Schedule study sessions for Operating Systems before the exam"
-```
-
-**Assignments tab:**
-- View all pending assignments
-- Click "Done ✓" to mark complete
-
-**Analytics tab:**
-- See event breakdown by type
-- Assignment completion status
-
----
-
-## ☁️ DEPLOYMENT (For Submission)
-
-### Deploy Backend to Railway
-
-1. Go to https://railway.app → Sign up with GitHub
-2. Click **New Project** → **Deploy from GitHub repo**
-3. Select your repository, choose the `backend/` folder
-4. Railway auto-detects Python/FastAPI
-5. Add environment variables:
-   - Click your service → **Variables** tab
-   - Add all keys from your `.env` file
-6. Railway gives you a URL like: `https://your-app.railway.app`
-
-**Add a `Procfile`** in backend/ folder:
-```
-web: uvicorn main:app --host 0.0.0.0 --port $PORT
-```
-
-### Deploy Frontend to Vercel
-
-1. Go to https://vercel.com → Sign up with GitHub
-2. Click **Add New Project** → Import your repository
-3. Set **Root Directory** to `frontend/`
-4. Add environment variable:
-   - `NEXT_PUBLIC_API_URL` = `https://your-app.railway.app` (your Railway URL)
-5. Click **Deploy** → Done!
-
-Your live URL will be: `https://your-app.vercel.app`
-
----
-
-## 🌟 TRACK B FEATURES CHECKLIST
-
-### Core (must have)
+### Core
 - [x] React/Next.js frontend with FullCalendar.js
 - [x] FastAPI backend with 15+ API endpoints
-- [x] LangChain AI agent with 12 scheduling tools
-- [x] SQLite database (easy upgrade to PostgreSQL)
+- [x] Rule-based AI agent with 12 scheduling tools (offline, no API key needed)
+- [x] Supabase/PostgreSQL database
+- [x] JWT Authentication (Login/Signup)
 - [x] Conflict detection + intelligent suggestions
 - [x] Smart auto-scheduling study sessions
-- [x] Recurring events (weekly classes for semester)
+- [x] Recurring events (weekly classes for full semester)
 - [x] Assignment tracking with priority + status
 
 ### Notifications
 - [x] Email notifications (Gmail SMTP)
 - [x] WhatsApp notifications (Twilio)
-- [x] HTML email templates with tables
+- [x] HTML email templates
 
 ### Google Calendar
 - [x] OAuth 2.0 authentication flow
@@ -262,93 +98,231 @@ Your live URL will be: `https://your-app.vercel.app`
 - [x] Summary statistics dashboard
 
 ### Deployment
-- [x] Vercel (frontend) + Railway (backend)
+- [x] Vercel (frontend)
+- [x] Render (backend)
+- [x] Supabase (database)
 - [x] Environment variable configuration
 - [x] CORS configured for production
 
 ---
 
-## 🎯 AI Chat Examples (For Demo Video)
+## 🚀 Local Setup Guide
+
+### STEP 1 — Install Required Software
+
+| Software | Download | Why |
+|----------|----------|-----|
+| Python 3.11+ | https://python.org/downloads | Backend server |
+| Node.js 20+ | https://nodejs.org | Frontend (Next.js) |
+| Git | https://git-scm.com | Version control |
+| VS Code | https://code.visualstudio.com | Code editor |
+
+Verify:
+```bash
+python --version    # Should say Python 3.11+
+node --version      # Should say v20+
+npm --version       # Should say 10+
+```
+
+### STEP 2 — Clone the Repository
+
+```bash
+git clone https://github.com/230390116016-design/smart-timetable-assistant.git
+cd smart-timetable-assistant/track_b
+```
+
+### STEP 3 — Set Up the Backend
+
+```bash
+cd backend
+
+# Create virtual environment
+python -m venv venv
+
+# Activate (Windows)
+venv\Scripts\activate
+# Activate (Mac/Linux)
+source venv/bin/activate
+
+# Install packages
+pip install -r requirements.txt
+```
+
+### STEP 4 — Configure Environment Variables (Backend)
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and fill in:
+
+```env
+# Supabase
+SUPABASE_URL=your-supabase-url
+SUPABASE_KEY=your-supabase-anon-key
+
+# JWT Auth
+JWT_SECRET_KEY=your-secret-key-here
+
+# Email Notifications (optional)
+EMAIL_SENDER=youremail@gmail.com
+EMAIL_PASSWORD=your-gmail-app-password
+
+# WhatsApp (optional)
+TWILIO_ACCOUNT_SID=your-twilio-sid
+TWILIO_AUTH_TOKEN=your-twilio-token
+TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
+
+# Google Calendar (optional)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
+
+**How to get Gmail App Password:**
+1. Go to myaccount.google.com → Security
+2. Enable 2-Step Verification
+3. Search "App Passwords" → Create one for "Mail"
+4. Copy the 16-character password
+
+### STEP 5 — Add Sample Data & Start Backend
+
+```bash
+python seed_data.py
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+You should see:
+```
+INFO: Uvicorn running on http://0.0.0.0:8000
+INFO: ✅ Database ready
+```
+
+Test: http://localhost:8000 → `{"status":"ok"}`  
+API Docs: http://localhost:8000/docs
+
+### STEP 6 — Set Up the Frontend
+
+```bash
+# New terminal window
+cd frontend
+npm install
+cp .env.example .env.local
+```
+
+`.env.local` should have:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+```bash
+npm run dev
+```
+
+Open http://localhost:3000 🎉
+
+---
+
+## 🎯 AI Chat Examples (For Demo)
 
 ```
-User: "Schedule my DSA lecture every Monday 9-10 AM for the whole semester"
-Agent: [Creates 16 recurring weekly events]
+User: "What classes do I have this week?"
+Agent: Shows all events for the week with times and locations
 
-User: "I have a conflict at 2 PM tomorrow. Find alternatives."
-Agent: [Checks conflicts, suggests 3 alternative slots]
+User: "Find a free 2-hour slot tomorrow"
+Agent: Lists available time slots on tomorrow's schedule
 
-User: "I have 8 hours of DSA to study before my exam on [date]. Auto-schedule it."
-Agent: [Creates daily study blocks in free slots before the exam]
+User: "Add Physics exam next Friday at 10 AM"
+Agent: Creates event, checks conflicts, confirms booking
 
-User: "What's my workload this week?"
-Agent: [Lists all events + deadlines for the week]
+User: "What are my upcoming deadlines?"
+Agent: Shows pending assignments sorted by due date
 
-User: "Mark my OS assignment as done"
-Agent: [Updates status to completed]
+User: "Schedule a 2-hour DSA study session tomorrow"
+Agent: Finds free slot and auto-schedules study block
 ```
 
 ---
 
-## 📝 VIVA PREPARATION TOPICS
+## 📊 Architecture
 
-**Q: Why FastAPI over Flask?**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     User (Browser)                          │
+└────────────────────────┬────────────────────────────────────┘
+                         │ HTTPS
+┌────────────────────────▼────────────────────────────────────┐
+│           Next.js Frontend (Vercel)                         │
+│   FullCalendar.js | AI Chat Panel | Analytics Dashboard     │
+│   Login/Signup (JWT Auth)                                   │
+└────────────────────────┬────────────────────────────────────┘
+                         │ REST API
+┌────────────────────────▼────────────────────────────────────┐
+│              FastAPI Backend (Render)                        │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐  │
+│  │  Events  │  │  Agent   │  │  Notif.  │  │  Google   │  │
+│  │   API    │  │Rule-based│  │Email + WA│  │ Calendar  │  │
+│  │          │  │  (Local) │  │ (Twilio) │  │  OAuth    │  │
+│  └──────────┘  └──────────┘  └──────────┘  └───────────┘  │
+│                    │                                        │
+│         ┌──────────▼──────────┐                            │
+│         │  Supabase/PostgreSQL│                            │
+│         │ users | events      │                            │
+│         │ assignments | auth  │                            │
+│         └─────────────────────┘                            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📝 Viva Preparation
+
+**Q: Why FastAPI over Flask?**  
 A: FastAPI is async, faster, auto-generates Swagger docs, has type validation with Pydantic, and is production-grade.
 
-**Q: How does conflict detection work?**
-A: SQL query: `WHERE NOT (end_datetime <= new_start OR start_datetime >= new_end)` — this catches all overlapping events.
+**Q: How does conflict detection work?**  
+A: SQL query checks: `WHERE NOT (end_datetime <= new_start OR start_datetime >= new_end)` — catches all overlapping events.
 
-**Q: How does auto-scheduling work?**
-A: Algorithm finds free slots day by day before the deadline, respects preferred time window (morning/afternoon/evening), limits sessions to max 2h to avoid burnout.
+**Q: How does the AI agent work without an LLM?**  
+A: It uses a rule-based intent detection system. The `detect_intent()` function matches keywords to intents (add_event, deadlines, free_slots, etc.) and routes to specific handlers. This makes it fast, free, and works offline.
 
-**Q: Why SQLite and not PostgreSQL?**
-A: SQLite is zero-config for development. The database.py functions work identically with PostgreSQL — just change the connection string.
+**Q: How does auto-scheduling work?**  
+A: Algorithm finds free slots day by day before the deadline, respects preferred time window, limits sessions to max 2h to avoid burnout.
 
-**Q: How is the AI agent different from Track A?**
-A: Track B agent has 12 tools vs 9, uses GPT-4o-mini (smarter), has smart_reschedule tool for conflict resolution, supports recurring events with RRULE, and auto-schedules study blocks.
+**Q: Why Supabase over SQLite?**  
+A: Supabase gives us PostgreSQL with built-in auth, real-time subscriptions, and a hosted cloud database — production-ready from day one.
+
+**Q: How is authentication handled?**  
+A: JWT tokens — user registers/logs in, server returns a signed JWT, frontend stores it and sends it in the `Authorization: Bearer <token>` header for all protected routes.
 
 ---
 
 ## 🛠️ Troubleshooting
 
 | Problem | Solution |
-|---------|---------|
-| `ModuleNotFoundError` | Make sure venv is activated: `source venv/bin/activate` |
-| `OPENAI_API_KEY` error | Check .env file has correct key, no extra spaces |
+|---------|----------|
+| `ModuleNotFoundError` | Make sure venv is activated: `venv\Scripts\activate` |
+| `SUPABASE_URL` error | Check `.env` file has correct Supabase credentials |
 | Frontend can't reach backend | Make sure backend is running on port 8000 |
 | Calendar not showing | Run `python seed_data.py` first |
 | `npm install` fails | Try `npm install --legacy-peer-deps` |
-| Port 8000 in use | Kill with `lsof -ti:8000 \| xargs kill` or use port 8001 |
+| Port 8000 in use | Use `--port 8001` in uvicorn command |
 
 ---
 
-## 📊 Architecture Diagram
+## 📦 Tech Stack
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     User (Browser)                          │
-└────────────────────────┬────────────────────────────────────┘
-                         │ HTTP
-┌────────────────────────▼────────────────────────────────────┐
-│              Next.js Frontend (Vercel)                       │
-│   FullCalendar.js | AI Chat Panel | Analytics Dashboard     │
-└────────────────────────┬────────────────────────────────────┘
-                         │ REST API
-┌────────────────────────▼────────────────────────────────────┐
-│              FastAPI Backend (Railway)                       │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐  │
-│  │  Events  │  │  Agent   │  │  Notif.  │  │  Google   │  │
-│  │  API     │  │ LangChain│  │  Email/  │  │  Calendar │  │
-│  │          │  │  GPT-4   │  │  WA      │  │  OAuth    │  │
-│  └──────────┘  └──────────┘  └──────────┘  └───────────┘  │
-│                         │                                   │
-│              ┌──────────▼──────────┐                       │
-│              │   SQLite Database   │                        │
-│              │ events | assignments│                        │
-│              │ subjects | analytics│                        │
-│              └─────────────────────┘                       │
-└─────────────────────────────────────────────────────────────┘
-```
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React / Next.js + Tailwind CSS + FullCalendar.js |
+| Backend | FastAPI (Python) |
+| AI Agent | Rule-based intent detection (offline, no API key) |
+| Database | Supabase (PostgreSQL) |
+| Auth | JWT (python-jose + passlib) |
+| Notifications | Gmail SMTP + Twilio WhatsApp |
+| Calendar Sync | Google Calendar OAuth 2.0 |
+| Deployment | Vercel (frontend) + Render (backend) |
 
 ---
 
-*Built for Capabl Track B – Smart Academic Timetable Assistant*
+*Built for Capabl Track B — Smart Academic Timetable Assistant*  
+*Team AgentForge | Heta Patel*
